@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey Betty! - Mobile App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+            cursor: pointer;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        /* Custom styles for better visual appeal */
+        .card {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded corners for mobile */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Deeper shadow */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: #ffffff;
+            padding: 1rem 1.5rem; /* Larger padding for touch */
+            border-radius: 1rem; /* More rounded buttons */
+            transition: background-color 0.2s ease-in-out;
+            font-weight: 600; /* Semi-bold text */
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* Indigo 700 */
+        }
+        .btn-secondary {
+            background-color: #e5e7eb; /* Gray 200 */
+            color: #374151; /* Gray 700 */
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            transition: background-color 0.2s ease-in-out;
+            font-weight: 600;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db; /* Gray 300 */
+        }
+        .input-field {
+            border: 1px solid #d1d5db; /* Gray 300 */
+            border-radius: 0.75rem; /* More rounded input fields */
+            padding: 1rem; /* Larger padding for touch */
+            width: 100%;
+            font-size: 1rem;
+        }
+        .fit-confidence-meter {
+            background-color: #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            height: 0.75rem; /* Slightly thinner bar */
+        }
+        .fit-confidence-bar {
+            height: 100%;
+            border-radius: 0.5rem;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Specific styles for community cards */
+        .community-card, .profile-outfit-card {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded for mobile cards */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Deeper shadow */
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Loading spinner styles */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4f46e5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 767px) {
+            .card {
+                padding: 1rem;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 0.85rem 1.25rem;
+                font-size: 0.95rem;
+            }
+            .input-field {
+                padding: 0.85rem;
+            }
+            h1 {
+                font-size: 2.25rem; /* Smaller heading for mobile */
+                margin-bottom: 2rem;
+            }
+            h2 {
+                font-size: 1.75rem; /* Smaller subheadings */
+            }
+            .step-number {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Unit toggle styles */
+        .unit-toggle {
+            display: flex;
+            background-color: #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 0.25rem;
+            width: fit-content;
+            margin-bottom: 1rem;
+        }
+        .unit-toggle button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            color: #4b5563;
+            transition: all 0.2s ease-in-out;
+        }
+        .unit-toggle button.active {
+            background-color: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <div class="w-full max-w-md mx-auto">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 rounded-lg p-3 bg-white shadow-md">
+            Hey Betty!
+        </h1>
+
+        <div class="flex justify-around bg-white p-3 rounded-xl shadow-sm mb-6">
+            <button id="navMyStyle" class="flex-1 text-center py-2 px-1 text-indigo-600 font-semibold border-b-2 border-indigo-600">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span>My Style</span>
+            </button>
+            <button id="navCommunity" class="flex-1 text-center py-2 px-1 text-gray-500 hover:text-indigo-600">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V4a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h2m0 0l3-3m-3 3l-3-3m3 3v-6a2 2 0 012-2h2a2 2 0 012 2v6m-3 0V9a2 2 0 012-2h2a2 2 0 012 2v11m-9-11h9"></path></svg>
+                <span>Community</span>
+            </button>
+            <button id="navProfile" class="flex-1 text-center py-2 px-1 text-gray-500 hover:text-indigo-600">
+                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span>Profile</span>
+            </button>
+        </div>
+
+        <div id="myStyleSection">
+            <div id="step1Card" class="card">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <span class="bg-indigo-500 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold step-number">1</span>
+                    Upload Photo & Basic Info
+                </h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    Upload a front-facing photo and provide your height and weight to generate your personalized 3D model.
+                </p>
+                <div class="unit-toggle">
+                    <button id="unitMetric" class="active">Metric (cm, kg)</button>
+                    <button id="unitImperial">Imperial (ft/in, lbs)</button>
+                </div>
+                <div class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 mb-4">
+                    <input type="file" id="photoUploadMobile" accept="image/*" class="hidden">
+                    <label for="photoUploadMobile" class="cursor-pointer text-indigo-600 hover:text-indigo-800 font-medium flex flex-col items-center">
+                        <svg class="w-10 h-10 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v7"></path>
+                        </svg>
+                        <span class="text-base">Click to Upload Photo</span>
+                        <span class="text-xs text-gray-500 mt-1">(Front-facing photo recommended)</span>
+                    </label>
+                    <img id="uploadedPhotoPreviewMobile" src="https://placehold.co/120x160/e0e0e0/ffffff?text=Your+Photo" alt="Uploaded Photo Preview" class="mt-4 rounded-lg shadow-md hidden max-w-full h-auto">
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div>
+                        <label for="heightInput" class="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
+                        <input type="number" id="heightInput" placeholder="e.g., 170" class="input-field">
+                    </div>
+                    <div>
+                        <label for="weightInput" class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+                        <input type="number" id="weightInput" placeholder="e.g., 65" class="input-field">
+                    </div>
+                </div>
+                <button id="generate3dModelBtn" class="btn-primary w-full">Generate 3D Model</button>
+            </div>
+
+            <div id="step2Card" class="card hidden">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <span class="bg-indigo-500 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold step-number">2</span>
+                    AI Body Shape Analysis & Styling Scenario
+                </h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    Your 3D model is ready! Select a styling scenario and customize your intent.
+                </p>
+                <div class="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-xl mb-4">
+                    <img id="generated3dModel" src="https://placehold.co/150x220/d1d5db/374151?text=Your+3D+Model" alt="3D Body Model" class="rounded-lg shadow-md max-w-full h-auto">
+                    <p class="text-xs text-gray-500 mt-2">Your personalized 3D body model</p>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div>
+                        <label for="scenarioMobile" class="block text-sm font-medium text-gray-700 mb-1">Select Styling Scenario</label>
+                        <select id="scenarioMobile" class="input-field">
+                            <option value="no-specific-occasion">No Specific Occasion (Default)</option>
+                            <option value="casual">Casual</option>
+                            <option value="work-business">Work / Business</option>
+                            <option value="date">Date</option>
+                            <option value="sporty-activewear">Sporty / Activewear</option>
+                            <option value="travel">Travel</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="chatbotPromptMobile" class="block text-sm font-medium text-gray-700 mb-1">Chatbot Prompt (e.g., "I want to look cool and relaxed for a weekend picnic")</label>
+                        <textarea id="chatbotPromptMobile" rows="3" placeholder="Describe your desired look..." class="input-field"></textarea>
+                        <button id="enhancePromptBtnMobile" class="btn-secondary w-full mt-2 flex items-center justify-center space-x-2">
+                            <span>Enhance Prompt ✨</span>
+                            <span id="promptSpinnerMobile" class="spinner hidden"></span>
+                        </button>
+                        <div id="enhancedPromptOutputMobile" class="mt-3 p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg hidden">
+                            <p class="font-semibold mb-1">Enhanced Suggestion:</p>
+                            <p id="enhancedPromptTextMobile"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="optionalTagsMobile" class="block text-sm font-medium text-gray-700 mb-1">Optional Tags (mood, style, weather, etc.)</label>
+                        <input type="text" id="optionalTagsMobile" placeholder="e.g., cozy, minimalist, sunny" class="input-field">
+                    </div>
+                </div>
+                <button id="generateOutfitBtn" class="btn-primary w-full">Generate Outfit Ideas</button>
+            </div>
+
+            <div id="smartSizeCard" class="card hidden">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <span class="bg-indigo-500 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold">📊</span>
+                    My Measurements
+                </h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    View your estimated body measurements based on your 3D model.
+                </p>
+                <div class="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-xl mb-4">
+                    <img src="https://placehold.co/150x200/d1d5db/374151?text=Body+Measurements" alt="Body Measurements Visualization" class="rounded-lg shadow-md mb-3 max-w-full h-auto">
+                    <p class="text-xs text-gray-500 mt-2">Estimated body measurements</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-2 text-base">Your Estimated Measurements:</h3>
+                        <ul class="list-disc list-inside text-gray-600 text-sm">
+                            <li>Bust: 92 cm</li>
+                            <li>Waist: 70 cm</li>
+                            <li>Hips: 98 cm</li>
+                            <li>Inseam: 80 cm</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-2 text-base">Brand Size Suggestions:</h3>
+                        <ul class="list-disc list-inside text-gray-600 text-sm">
+                            <li>Zara: Top - M, Bottom - L</li>
+                            <li>Uniqlo: Top - S, Bottom - M</li>
+                            <li>H&M: Top - M, Bottom - M</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step3Card" class="card hidden">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <span class="bg-indigo-500 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold step-number">3</span>
+                    Outfit Generation & Realistic Try-On
+                </h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    Explore personalized outfit looks rendered on your 3D model.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-3 rounded-xl shadow-sm flex flex-col items-center">
+                        <img src="https://placehold.co/150x220/c7d2fe/4f46e5?text=Outfit+1" alt="Outfit Look 1" class="rounded-lg shadow-md mb-2 max-w-full h-auto">
+                        <p class="font-medium text-gray-700 text-sm mb-1">Casual Weekend Look</p>
+                        <div class="w-full mb-2">
+                            <p class="text-xs text-gray-600 mb-0.5">Fit Confidence: Good Fit</p>
+                            <div class="fit-confidence-meter">
+                                <div class="fit-confidence-bar bg-green-500" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 w-full justify-center">
+                            <button class="btn-secondary text-xs px-2 py-1">Adjust</button>
+                            <button class="btn-secondary text-xs px-2 py-1">Regenerate</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-xl shadow-sm flex flex-col items-center">
+                        <img src="https://placehold.co/150x220/c7d2fe/4f46e5?text=Outfit+2" alt="Outfit Look 2" class="rounded-lg shadow-md mb-2 max-w-full h-auto">
+                        <p class="font-medium text-gray-700 text-sm mb-1">Business Casual</p>
+                        <div class="w-full mb-2">
+                            <p class="text-xs text-gray-600 mb-0.5">Fit Confidence: Slightly Loose</p>
+                            <div class="fit-confidence-meter">
+                                <div class="fit-confidence-bar bg-yellow-500" style="width: 70%;"></div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 w-full justify-center">
+                            <button class="btn-secondary text-xs px-2 py-1">Adjust</button>
+                            <button class="btn-secondary text-xs px-2 py-1">Regenerate</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="aiReasoningBtn" class="btn-secondary w-full mt-5 flex items-center justify-center space-x-2">
+                    <span>See AI's Reasoning</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+                <div id="aiReasoningOutput" class="mt-3 p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg hidden">
+                    <p class="font-semibold mb-1">AI Analysis:</p>
+                    <p>Based on your 3D model, we've identified you have a **Pear Body Shape**. This means your hips are wider than your bust and shoulders. To balance your proportions, we recommend outfits that:</p>
+                    <ul class="list-disc list-inside text-sm mt-2">
+                        <li>Draw attention to your upper body (e.g., statement necklaces, bright tops).</li>
+                        <li>Add volume to your shoulders (e.g., puff sleeves, structured jackets).</li>
+                        <li>Elongate your legs (e.g., A-line skirts, bootcut pants).</li>
+                    </ul>
+                    <p class="mt-2">This specific outfit combines a fitted top with a flowing A-line skirt to highlight your waist and create a balanced silhouette.</p>
+                </div>
+                <div class="flex justify-center mt-5 space-x-3">
+                    <button id="generateMoreLooksBtn" class="btn-primary flex-1">Generate More Looks</button>
+                    <button id="backToScenarioBtn" class="btn-secondary flex-1">Back to Styling Scenario</button>
+                </div>
+            </div>
+
+            <div id="step4Card" class="card hidden">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <span class="bg-indigo-500 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold step-number">4</span>
+                    Save, Share, or Explore More
+                </h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    Found a look you love? Save it, share it, or discover trending styles!
+                </p>
+                <div class="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-xl mb-4">
+                    <img src="https://placehold.co/200x280/a78bfa/ffffff?text=Your+Favorite+Look" alt="Favorite Outfit Preview" class="rounded-lg shadow-md mb-3 max-w-full h-auto">
+                    <p class="text-base font-semibold text-gray-700">My Favorite Look!</p>
+                </div>
+                <div class="flex flex-col space-y-3 justify-center">
+                    <button class="btn-primary w-full flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        <span>Save to Wardrobe</span>
+                    </button>
+                    <button class="btn-secondary w-full flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path></svg>
+                        <span>Share on Social Media</span>
+                    </button>
+                    <button class="btn-primary w-full flex items-center justify-center space-x-2 bg-purple-600 hover:bg-purple-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354V20.646m0 0l-7.5-7.5M12 20.646l7.5-7.5"></path></svg>
+                        <span>Share to Community</span>
+                    </button>
+                    <button class="btn-secondary w-full flex items-center justify-center space-x-2" id="exploreCommunityStylesBtn">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>Explore Community Styles</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="communitySection" class="hidden">
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <span class="bg-purple-600 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold">⭐</span>
+                    Community Style Feed
+                </h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    Discover and try on outfits shared by our vibrant community!
+                </p>
+
+                <div class="mb-4">
+                    <input type="text" placeholder="Search outfits, styles, or users..." class="input-field mb-2">
+                    <select class="input-field text-sm">
+                        <option>Filter by: Trending</option>
+                        <option>Newest</option>
+                        <option>Most Liked</option>
+                        <option>My Saved</option>
+                        <option>Body Type (similar to me)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="community-card flex flex-col items-center">
+                        <div class="flex items-center w-full mb-3">
+                            <img src="https://placehold.co/32x32/cbd5e1/4b5563?text=U1" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
+                            <div>
+                                <p class="font-semibold text-gray-800 text-sm">@StyleExplorer</p>
+                                <p class="text-xs text-gray-500">Casual Friday Look</p>
+                            </div>
+                        </div>
+                        <img src="https://placehold.co/180x250/a78bfa/ffffff?text=Community+Outfit+1" alt="Community Outfit 1" class="rounded-lg shadow-md mb-3 max-w-full h-auto">
+                        <p class="text-xs text-gray-600 text-center mb-3">"Perfect for a relaxed weekend picnic!" #casual #summerstyle</p>
+                        <div class="flex justify-around w-full text-gray-500 text-xs mb-3">
+                            <div class="flex items-center"><svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> 1.2K</div>
+                            <div class="flex items-center"><svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> 87</div>
+                            <div class="flex items-center"><svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg> 245</div>
+                        </div>
+                        <button class="btn-primary w-full flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 text-sm py-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897m4.905-2.768a2 2 0 013.393 2.147L13 11 14 11H9l1-2 7.854-3.392m0 0a2 2 0 002.147-3.393m-1.75 1.75L9 9"></path></svg>
+                            <span>Try On This Look</span>
+                        </button>
+                    </div>
+
+                    <div class="community-card flex flex-col items-center">
+                        <div class="flex items-center w-full mb-3">
+                            <img src="https://placehold.co/32x32/cbd5e1/4b5563?text=U2" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
+                            <div>
+                                <p class="font-semibold text-gray-800 text-sm">@ChicStylist</p>
+                                <p class="text-xs text-gray-500">Elegant Work Wear</p>
+                            </div>
+                        </div>
+                        <img src="https://placehold.co/180x250/a78bfa/ffffff?text=Community+Outfit+2" alt="Community Outfit 2" class="rounded-lg shadow-md mb-3 max-w-full h-auto">
+                        <p class="text-xs text-gray-600 text-center mb-3">"Ready for that big meeting! What do you think?" #businesschic #powerdressing</p>
+                        <div class="flex justify-around w-full text-gray-500 text-xs mb-3">
+                            <div class="flex items-center"><svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> 980</div>
+                            <div class="flex items-center"><svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 16h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> 65</div>
+                            <div class="flex items-center"><svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg> 180</div>
+                        </div>
+                        <button class="btn-primary w-full flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 text-sm py-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897m4.905-2.768a2 2 0 013.393 2.147L13 11 14 11H9l1-2 7.854-3.392m0 0a2 2 0 002.147-3.393m-1.75 1.75L9 9"></path></svg>
+                            <span>Try On This Look</span>
+                        </button>
+                    </div>
+                </div>
+                <button class="btn-primary w-full mt-6 bg-purple-600 hover:bg-purple-700">Load More Community Outfits</button>
+                <button class="btn-secondary w-full mt-4">Share Your Own Look</button>
+            </div>
+        </div>
+
+        <div id="profileSection" class="hidden">
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-700 mb-6 flex items-center">
+                    <span class="bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 text-md font-bold">👤</span>
+                    My Profile
+                </h2>
+                <div class="flex items-center mb-6">
+                    <img src="https://placehold.co/96x96/a78bfa/ffffff?text=You" alt="Profile Avatar" class="w-24 h-24 rounded-full border-4 border-indigo-200 shadow-md mr-6">
+                    <div class="flex-1">
+                        <p class="text-2xl font-bold text-gray-800 mb-1">@FashionistaBetty</p>
+                        <div class="flex justify-between text-center mt-2">
+                            <div>
+                                <p class="font-bold text-lg text-gray-800">12</p>
+                                <p class="text-sm text-gray-500">Posts</p>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg text-gray-800">250</p>
+                                <p class="text-sm text-gray-500">Followers</p>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg text-gray-800">180</p>
+                                <p class="text-sm text-gray-500">Following</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-gray-700 text-sm mb-6">"Styling my life one outfit at a time with Hey Betty! ✨"</p>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="profile-outfit-card p-1">
+                        <img src="https://placehold.co/100x150/c7d2fe/4f46e5?text=Outfit+A" alt="Profile Outfit 1" class="rounded-lg w-full h-auto object-cover">
+                    </div>
+                    <div class="profile-outfit-card p-1">
+                        <img src="https://placehold.co/100x150/c7d2fe/4f46e5?text=Outfit+B" alt="Profile Outfit 2" class="rounded-lg w-full h-auto object-cover">
+                    </div>
+                    <div class="profile-outfit-card p-1">
+                        <img src="https://placehold.co/100x150/c7d2fe/4f46e5?text=Outfit+C" alt="Profile Outfit 3" class="rounded-lg w-full h-auto object-cover">
+                    </div>
+                    <div class="profile-outfit-card p-1">
+                        <img src="https://placehold.co/100x150/c7d2fe/4f46e5?text=Outfit+D" alt="Profile Outfit 4" class="rounded-lg w-full h-auto object-cover">
+                    </div>
+                    <div class="profile-outfit-card p-1">
+                        <img src="https://placehold.co/100x150/c7d2fe/4f46e5?text=Outfit+E" alt="Profile Outfit 5" class="rounded-lg w-full h-auto object-cover">
+                    </div>
+                    <div class="profile-outfit-card p-1">
+                        <img src="https://placehold.co/100x150/c7d2fe/4f46e5?text=Outfit+F" alt="Profile Outfit 6" class="rounded-lg w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-gray-500 text-sm mt-8 pb-4">
+            &copy; 2025 Hey Betty!. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        // --- Global Variables and Initial Setup ---
+        let currentUnit = 'metric'; // 'metric' or 'imperial'
+
+        // Placeholder 3D model images for simulation
+        const modelPlaceholders = [
+            'https://placehold.co/150x220/d1d5db/374151?text=Model+A',
+            'https://placehold.co/150x220/c7d2fe/4f46e5?text=Model+B',
+            'https://placehold.co/150x220/a78bfa/ffffff?text=Model+C',
+            'https://placehold.co/150x220/8b5cf6/ffffff?text=Model+D'
+        ];
+
+        // --- Element References ---
+        const photoUploadMobile = document.getElementById('photoUploadMobile');
+        const uploadedPhotoPreviewMobile = document.getElementById('uploadedPhotoPreviewMobile');
+
+        const unitMetricBtn = document.getElementById('unitMetric');
+        const unitImperialBtn = document.getElementById('unitImperial');
+        const heightInput = document.getElementById('heightInput');
+        const weightInput = document.getElementById('weightInput');
+        const heightLabel = document.querySelector('label[for="heightInput"]');
+        const weightLabel = document.querySelector('label[for="weightInput"]');
+
+        const generate3dModelBtn = document.getElementById('generate3dModelBtn');
+        const generated3dModel = document.getElementById('generated3dModel');
+
+        const enhancePromptBtnMobile = document.getElementById('enhancePromptBtnMobile');
+        const chatbotPromptMobile = document.getElementById('chatbotPromptMobile');
+        const scenarioMobile = document.getElementById('scenarioMobile');
+        const optionalTagsMobile = document.getElementById('optionalTagsMobile');
+        const enhancedPromptOutputMobile = document.getElementById('enhancedPromptOutputMobile');
+        const enhancedPromptTextMobile = document.getElementById('enhancedPromptTextMobile');
+        const promptSpinnerMobile = document.getElementById('promptSpinnerMobile');
+
+        const aiReasoningBtn = document.getElementById('aiReasoningBtn');
+        const aiReasoningOutput = document.getElementById('aiReasoningOutput');
+
+        const navMyStyle = document.getElementById('navMyStyle');
+        const navCommunity = document.getElementById('navCommunity');
+        const navProfile = document.getElementById('navProfile'); // New profile nav button
+
+        const myStyleSection = document.getElementById('myStyleSection');
+        const communitySection = document.getElementById('communitySection');
+        const profileSection = document.getElementById('profileSection'); // New profile section
+
+        const step1Card = document.getElementById('step1Card');
+        const step2Card = document.getElementById('step2Card');
+        const step3Card = document.getElementById('step3Card');
+        const step4Card = document.getElementById('step4Card');
+        const smartSizeCard = document.getElementById('smartSizeCard'); // Moved from step 5
+
+        const generateOutfitBtn = document.getElementById('generateOutfitBtn');
+        const generateMoreLooksBtn = document.getElementById('generateMoreLooksBtn');
+        const backToScenarioBtn = document.getElementById('backToScenarioBtn');
+        const exploreCommunityStylesBtn = document.getElementById('exploreCommunityStylesBtn');
+
+
+        // --- Functions ---
+
+        // Function to update unit labels and placeholders
+        function updateUnitLabels() {
+            if (currentUnit === 'metric') {
+                heightLabel.textContent = 'Height (cm)';
+                heightInput.placeholder = 'e.g., 170';
+                weightLabel.textContent = 'Weight (kg)';
+                weightInput.placeholder = 'e.g., 65';
+                unitMetricBtn.classList.add('active');
+                unitImperialBtn.classList.remove('active');
+            } else {
+                heightLabel.textContent = 'Height (ft/in)';
+                heightInput.placeholder = 'e.g., 5.7 (for 5ft 7in)'; // Simplified for prototype
+                weightLabel.textContent = 'Weight (lbs)';
+                weightInput.placeholder = 'e.g., 145';
+                unitImperialBtn.classList.add('active');
+                unitMetricBtn.classList.remove('active');
+            }
+        }
+
+        // Function to switch visible sections
+        function showSection(sectionToShow) {
+            myStyleSection.classList.add('hidden');
+            communitySection.classList.add('hidden');
+            profileSection.classList.add('hidden');
+
+            navMyStyle.classList.remove('text-indigo-600', 'border-indigo-600');
+            navMyStyle.classList.add('text-gray-500', 'hover:text-indigo-600');
+            navCommunity.classList.remove('text-indigo-600', 'border-indigo-600');
+            navCommunity.classList.add('text-gray-500', 'hover:text-indigo-600');
+            navProfile.classList.remove('text-indigo-600', 'border-indigo-600');
+            navProfile.classList.add('text-gray-500', 'hover:text-indigo-600');
+
+            if (sectionToShow === 'myStyle') {
+                myStyleSection.classList.remove('hidden');
+                navMyStyle.classList.add('text-indigo-600', 'border-indigo-600');
+                navMyStyle.classList.remove('text-gray-500', 'hover:text-indigo-600');
+            } else if (sectionToShow === 'community') {
+                communitySection.classList.remove('hidden');
+                navCommunity.classList.add('text-indigo-600', 'border-indigo-600');
+                navCommunity.classList.remove('text-gray-500', 'hover:text-indigo-600');
+            } else if (sectionToShow === 'profile') {
+                profileSection.classList.remove('hidden');
+                navProfile.classList.add('text-indigo-600', 'border-indigo-600');
+                navProfile.classList.remove('text-gray-500', 'hover:text-indigo-600');
+            }
+        }
+
+        // Function to show specific step cards within My Style section
+        function showMyStyleStep(stepNumber) {
+            step1Card.classList.add('hidden');
+            step2Card.classList.add('hidden');
+            step3Card.classList.add('hidden');
+            step4Card.classList.add('hidden');
+            smartSizeCard.classList.add('hidden'); // Hide smart size card by default
+
+            if (stepNumber === 1) {
+                step1Card.classList.remove('hidden');
+            } else if (stepNumber === 2) {
+                step2Card.classList.remove('hidden');
+                smartSizeCard.classList.remove('hidden'); // Show smart size card after 3D model is generated
+            } else if (stepNumber === 3) {
+                step3Card.classList.remove('hidden');
+                smartSizeCard.classList.remove('hidden'); // Keep smart size card visible
+            } else if (stepNumber === 4) {
+                step4Card.classList.remove('hidden');
+                smartSizeCard.classList.remove('hidden'); // Keep smart size card visible
+            }
+        }
+
+
+        // --- Event Listeners ---
+
+        // Photo Upload Preview
+        photoUploadMobile.addEventListener('change', function(event) {
+            const [file] = event.target.files;
+            if (file) {
+                uploadedPhotoPreviewMobile.src = URL.createObjectURL(file);
+                uploadedPhotoPreviewMobile.classList.remove('hidden');
+            }
+        });
+
+        // Unit Toggle
+        unitMetricBtn.addEventListener('click', () => {
+            currentUnit = 'metric';
+            updateUnitLabels();
+        });
+        unitImperialBtn.addEventListener('click', () => {
+            currentUnit = 'imperial';
+            updateUnitLabels();
+        });
+
+        // Simulate 3D Model Generation and show Step 2
+        generate3dModelBtn.addEventListener('click', () => {
+            // Simulate loading (optional, could add a spinner here)
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * modelPlaceholders.length);
+                generated3dModel.src = modelPlaceholders[randomIndex];
+                showMyStyleStep(2); // Show Step 2 and Smart Size Card
+            }, 500); // Simulate a short delay
+        });
+
+        // Simulate Outfit Generation and show Step 3
+        generateOutfitBtn.addEventListener('click', () => {
+             // Simulate loading
+            setTimeout(() => {
+                showMyStyleStep(3); // Show Step 3
+            }, 500); // Simulate a short delay
+        });
+
+        // Simulate Generate More Looks and show Step 3 again
+        generateMoreLooksBtn.addEventListener('click', () => {
+            // Simulate loading
+            setTimeout(() => {
+                showMyStyleStep(3); // Show Step 3 again
+            }, 500); // Simulate a short delay
+        });
+
+        // Back to Styling Scenario
+        backToScenarioBtn.addEventListener('click', () => {
+            showMyStyleStep(2); // Show Step 2
+        });
+
+        // Explore Community Styles button in Step 4
+        exploreCommunityStylesBtn.addEventListener('click', () => {
+            showSection('community');
+        });
+
+
+        // AI Reasoning Toggle
+        aiReasoningBtn.addEventListener('click', () => {
+            aiReasoningOutput.classList.toggle('hidden');
+        });
+
+        // Navigation Bar
+        navMyStyle.addEventListener('click', () => showSection('myStyle'));
+        navCommunity.addEventListener('click', () => showSection('community'));
+        navProfile.addEventListener('click', () => showSection('profile')); // New profile nav listener
+
+        // --- Gemini API Integration for Mobile ---
+        enhancePromptBtnMobile.addEventListener('click', async () => {
+            const chatbotPrompt = chatbotPromptMobile.value;
+            const scenario = scenarioMobile.value;
+            const optionalTags = optionalTagsMobile.value;
+            
+            if (!chatbotPrompt.trim()) {
+                enhancedPromptTextMobile.textContent = 'Please enter a prompt to enhance.';
+                enhancedPromptOutputMobile.classList.remove('hidden');
+                return;
+            }
+
+            // Show loading spinner and hide previous output
+            promptSpinnerMobile.classList.remove('hidden');
+            enhancedPromptOutputMobile.classList.add('hidden');
+            enhancedPromptTextMobile.textContent = '';
+
+            const prompt = `Based on the styling scenario "${scenario}" and optional tags "${optionalTags}", enhance the following fashion styling prompt for an AI stylist: "${chatbotPrompt}". Provide a more detailed and creative description of the desired look, focusing on mood, style elements, and potential occasions. Respond in English.`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Canvas will automatically provide the API key at runtime.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    enhancedPromptTextMobile.textContent = text;
+                    enhancedPromptOutputMobile.classList.remove('hidden');
+                } else {
+                    enhancedPromptTextMobile.textContent = 'Failed to get a response from the AI. Please try again.';
+                    enhancedPromptOutputMobile.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                enhancedPromptTextMobile.textContent = `Error: ${error.message}. Could not enhance prompt.`;
+                enhancedPromptOutputMobile.classList.remove('hidden');
+            } finally {
+                // Hide loading spinner
+                promptSpinnerMobile.classList.add('hidden');
+            }
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUnitLabels(); // Set initial unit labels
+            showMyStyleStep(1); // Start with Step 1 visible
+            showSection('myStyle'); // Ensure My Style section is active by default
+        });
+    </script>
+</body>
+</html>
